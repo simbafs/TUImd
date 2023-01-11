@@ -10,7 +10,7 @@ type Tab struct {
 }
 
 func (m Tab) Init() tea.Cmd { return nil }
-func (m Tab) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Tab) Update(msg tea.Msg) (Tab, tea.Cmd) {
 	// var cmd tea.Cmd
 	// var cmds []tea.Cmd = make([]tea.Cmd, 4)
 

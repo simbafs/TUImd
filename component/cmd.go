@@ -9,6 +9,7 @@ import (
 )
 
 type Cmd struct {
+	Mode      Mode
 	textinput textinput.Model
 	msg       string
 }
@@ -16,7 +17,7 @@ type Cmd struct {
 type UpdateMsgMsg string
 
 func (m Cmd) Init() tea.Cmd { return textinput.Blink }
-func (m Cmd) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Cmd) Update(msg tea.Msg) (Cmd, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd = make([]tea.Cmd, 0)
 
@@ -24,15 +25,17 @@ func (m Cmd) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.textinput.Width = msg.Width
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keymap.CommandPrefix):
-			m.msg = ""
-			m.textinput.Focus()
-		case key.Matches(msg, keymap.EnterCommand):
-			m.textinput.Blur()
-			cmd = util.CmdExec(m.textinput.Value())
-			m.textinput.SetValue("")
-			cmds = append(cmds, cmd)
+		if m.Mode == NormalMode {
+			switch {
+			case key.Matches(msg, keymap.CommandPrefix):
+				m.msg = ""
+				m.textinput.Focus()
+			case key.Matches(msg, keymap.EnterCommand):
+				m.textinput.Blur()
+				cmd = util.CmdExec(m.textinput.Value())
+				m.textinput.SetValue("")
+				cmds = append(cmds, cmd)
+			}
 		}
 	case UpdateMsgMsg:
 		m.msg = string(msg)

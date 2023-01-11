@@ -12,47 +12,35 @@ import (
 type UpdateContentMsg string
 type SaveFileMsg string
 
-type mode int
-
-const (
-	insertMode mode = iota
-	normalMode
-)
-
 type Source struct {
-	mode     mode
-	textarea textarea.Model
+	Mode     Mode
+	Textarea textarea.Model
 }
 
 func (m Source) Init() tea.Cmd { return nil }
-func (m Source) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Source) Update(msg tea.Msg) (Source, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd = make([]tea.Cmd, 4)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.textarea.SetHeight(msg.Height - 4)
+		m.Textarea.SetHeight(msg.Height - 4)
 	case util.FileMsg:
-		m.textarea.SetValue(msg.Content)
-		m.textarea.Focus()
+		m.Textarea.SetValue(msg.Content)
+		m.Textarea.Focus()
 	case tea.KeyMsg:
 		// mode change should in main model
-		if msg.Type == tea.KeyEsc {
-			m.mode = normalMode
-		}
-
-		if msg.String() == "a" || msg.String() == "i" {
-			m.mode = insertMode
-		}
-
-		if m.mode == insertMode {
-			m.textarea, cmd = m.textarea.Update(msg)
+		if m.Mode == InsertMode {
+			m.Textarea, cmd = m.Textarea.Update(msg)
 			cmds = append(cmds, cmd)
+			m.Textarea.KeyMap = textarea.DefaultKeyMap
+		} else if m.Mode == NormalMode {
+			// m.Textarea.KeyMap.CharacterForward.SetKeys("right", "ctrl+f", "l")
+			// m.Textarea.KeyMap.CharacterBackward.SetKeys("left", "ctrl+b", "h")
+			// m.Textarea.KeyMap.LineNext.SetKeys("down", "ctrl+n", "j")
+			// m.Textarea.KeyMap.LinePrevious.SetKeys("up", "ctrl+p", "k")
 		}
 
-		// cmds = append(cmds, func() tea.Msg {
-		//     return UpdateContentMsg(m.textarea.Value())
-		// })
 	case SaveFileMsg:
 		cmds = append(cmds, func() tea.Msg {
 			filename := string(msg)
@@ -60,21 +48,27 @@ func (m Source) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if err != nil {
 				return UpdateMsgMsg("Failed to open " + filename)
 			}
-			_, err = file.WriteString(m.textarea.Value())
+			_, err = file.WriteString(m.Textarea.Value())
 			if err != nil {
 				return UpdateMsgMsg("Failed to write to " + filename)
 			}
-			return UpdateMsgMsg(fmt.Sprintf("\"%s\" %dL written", filename, m.textarea.LineCount()))
+			return UpdateMsgMsg(fmt.Sprintf("\"%s\" %dL written", filename, m.Textarea.LineCount()))
 		})
 	}
 
 	return m, tea.Batch(cmds...)
 }
-func (m Source) View() string { return m.textarea.View() }
+func (m Source) View() string { return m.Textarea.View() }
 
 func NewSouce(text string) Source {
+	input := textarea.New()
+	input.CharLimit = 0
+	input.KeyMap.CharacterForward.SetKeys("right", "ctrl+f", "l")
+	input.KeyMap.CharacterBackward.SetKeys("left", "ctrl+b", "h")
+	input.KeyMap.LineNext.SetKeys("down", "ctrl+n", "j")
+	input.KeyMap.LinePrevious.SetKeys("up", "ctrl+p", "k")
 	return Source{
-		mode:     normalMode,
-		textarea: textarea.New(),
+		Mode:     NormalMode,
+		Textarea: input,
 	}
 }

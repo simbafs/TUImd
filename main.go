@@ -23,9 +23,13 @@ const (
 type model struct {
 	filename string
 	body     string
+	mode     component.Mode
 	width    int
 	height   int
-	nodes    []tea.Model
+	tab      component.Tab
+	source   component.Source
+	markdown component.Markdown
+	cmd      component.Cmd
 }
 
 func NewModel() model {
@@ -35,29 +39,23 @@ func NewModel() model {
 	cmd := component.NewCmd()
 
 	m := model{
-		nodes: make([]tea.Model, 4),
+		tab:      tab,
+		source:   source,
+		markdown: markdown,
+		cmd:      cmd,
 	}
-
-	m.nodes[tabAddr] = tab
-	m.nodes[sourceAddr] = source
-	m.nodes[markdownAddr] = markdown
-	m.nodes[cmdAddr] = cmd
 
 	return m
 }
 
 func (m model) Init() tea.Cmd {
-	var cmd tea.Cmd
-	var cmds []tea.Cmd = make([]tea.Cmd, 4)
-
-	for _, v := range m.nodes {
-		cmd = v.Init()
-		cmds = append(cmds, cmd)
-	}
-
-	cmds = append(cmds, util.ReadFile("./test.md"))
-
-	return tea.Batch(cmds...)
+	return tea.Batch(
+		m.tab.Init(),
+		m.source.Init(),
+		m.markdown.Init(),
+		m.cmd.Init(),
+		util.ReadFile("./test.md"),
+	)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -66,19 +64,38 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if keymap.Matches(msg, keymap.Quit) {
+		switch {
+		case keymap.Matches(msg, keymap.Quit):
 			cmds = append(cmds, func() tea.Msg {
 				return component.UpdateMsgMsg("Type  :q  and press <Enter> to exit TUImd")
 			})
+		// there should be a more elegant way to manage state
+		case keymap.Matches(msg, keymap.BeginInsertMode):
+			if m.mode == component.NormalMode {
+				m.mode = component.InsertMode
+				m.source.Mode = component.InsertMode
+				m.cmd.Mode = component.InsertMode
+			}
+		case keymap.Matches(msg, keymap.BeginNormalMode):
+			if m.mode == component.InsertMode {
+				m.mode = component.NormalMode
+				m.source.Mode = component.NormalMode
+				m.cmd.Mode = component.NormalMode
+			}
 		}
+
 	case tea.WindowSizeMsg:
 		m.height, m.width = msg.Height, msg.Width
 	}
 
-	for addr, v := range m.nodes {
-		m.nodes[addr], cmd = v.Update(msg)
-		cmds = append(cmds, cmd)
-	}
+	m.tab, cmd = m.tab.Update(msg)
+	cmds = append(cmds, cmd)
+	m.source, cmd = m.source.Update(msg)
+	cmds = append(cmds, cmd)
+	m.markdown, cmd = m.markdown.Update(msg)
+	cmds = append(cmds, cmd)
+	m.cmd, cmd = m.cmd.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
@@ -87,14 +104,14 @@ func (m model) View() string {
 	// TODO: switch to github.com/treilik/bubbleboxer
 
 	middle := util.SplitHorizontal(m.height-4, []int{m.width/2 - 1, m.width/2 - 1},
-		m.nodes[sourceAddr].View(),
-		m.nodes[markdownAddr].View(),
+		m.source.View(),
+		m.markdown.View(),
 	)
 
 	return util.SplitVertical(m.width, []int{1, lipgloss.Height(middle), 1},
-		m.nodes[tabAddr].View(),
+		m.tab.View(),
 		middle,
-		m.nodes[cmdAddr].View(),
+		m.cmd.View(),
 	)
 }
 
