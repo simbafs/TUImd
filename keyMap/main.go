@@ -8,3 +8,7 @@ var Quit = key.NewBinding(
 )
 
 var CommandPrefix = key.NewBinding(key.WithKeys(":"))
+
+var EnterCommand = key.NewBinding(key.WithKeys("enter"))
+
+var Matches = key.Matches

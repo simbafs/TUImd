@@ -1,0 +1,181 @@
+:e main.go
+:e test.md
+:q
+:q
+:q
+quit
+:q
+quit
+:q
+quit
+:eq
+:Q
+:q
+quit
+:q
+quit
+:quit
+quit
+:q
+> quit
+:q
+> quit
+:q
+> quit
+:e README.md
+:e test.md
+:q
+> quit
+:q
+> quit
+:q
+> quit
+
+:q
+> quit
+:q
+> quit
+:e README.md
+:edit text.md
+:e text.md
+:edit main.gp
+:e main.go
+:e text.md
+:e test.md
+:q
+> quit
+:e README.md
+:q
+> quit
+:q
+> quit
+jk:q
+:q
+> quit
+:q
+> quit
+:Q
+:q
+> quit
+
+
+:W
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:q
+> quit
+:w
+:q
+> quit
+:q
+> quit
+
+
+
+
+
+
+
+
+
+:w
+:w
+:w
+:q
+> quit

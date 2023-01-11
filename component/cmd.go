@@ -5,34 +5,56 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	keymap "github.com/simbafs/TUImd/keyMap"
+	"github.com/simbafs/TUImd/util"
 )
 
 type Cmd struct {
-	Textinput textinput.Model
+	textinput textinput.Model
+	msg       string
 }
 
+type UpdateMsgMsg string
+
 func (m Cmd) Init() tea.Cmd { return textinput.Blink }
-func (m Cmd) Update(msg tea.Msg) (Cmd, tea.Cmd) {
+func (m Cmd) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd = make([]tea.Cmd, 0)
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.Textinput.Width = msg.Width
+		m.textinput.Width = msg.Width
 	case tea.KeyMsg:
-		if key.Matches(msg, keymap.CommandPrefix) {
-			m.Textinput.Focus()
+		switch {
+		case key.Matches(msg, keymap.CommandPrefix):
+			m.msg = ""
+			m.textinput.Focus()
+		case key.Matches(msg, keymap.EnterCommand):
+			m.textinput.Blur()
+			cmd = util.CmdExec(m.textinput.Value())
+			m.textinput.SetValue("")
+			cmds = append(cmds, cmd)
 		}
+	case UpdateMsgMsg:
+		m.msg = string(msg)
 	}
 
-	m.Textinput, cmd = m.Textinput.Update(msg)
+	m.textinput, cmd = m.textinput.Update(msg)
+	cmds = append(cmds, cmd)
 
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
-func (m Cmd) View() string { return m.Textinput.Value() }
+
+func (m Cmd) View() string {
+	if m.msg != "" {
+		// gray
+		return m.msg
+	}
+	return m.textinput.Value()
+}
 
 func NewCmd() Cmd {
 	return Cmd{
-		Textinput: textinput.New(),
+		textinput: textinput.New(),
 	}
 }
 
