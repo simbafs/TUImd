@@ -1,4 +1,4 @@
-package component
+package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
@@ -6,7 +6,7 @@ import (
 )
 
 type Tab struct {
-	text string
+	Text string
 }
 
 func (m Tab) Init() tea.Cmd { return nil }
@@ -16,16 +16,25 @@ func (m Tab) Update(msg tea.Msg) (Tab, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case util.FileMsg:
-		m.text = msg.Filename
+		m.Text = msg.Filename
 	}
 
 	return m, nil
 	// return m, tea.Batch(cmds...)
 }
-func (m Tab) View() string { return m.text }
+
+// func (m Tab) View() string {
+// 	if mode == InsertMode {
+// 		return "InsertMode"
+// 	} else {
+// 		return "NormalMode"
+// 	}
+// }
+
+func (m Tab) View() string { return m.Text }
 
 func NewTab() Tab {
 	return Tab{
-		text: "",
+		Text: "",
 	}
 }

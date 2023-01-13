@@ -7,7 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/simbafs/TUImd/component"
 	keymap "github.com/simbafs/TUImd/keyMap"
 	"github.com/simbafs/TUImd/util"
 )
@@ -19,24 +18,33 @@ const (
 	cmdAddr
 )
 
+type Mode int
+
+const (
+	NormalMode Mode = iota
+	InsertMode
+)
+
+var mode = NormalMode
+
 // main model
 type model struct {
 	filename string
 	body     string
-	mode     component.Mode
+	mode     Mode
 	width    int
 	height   int
-	tab      component.Tab
-	source   component.Source
-	markdown component.Markdown
-	cmd      component.Cmd
+	tab      Tab
+	source   Source
+	markdown Markdown
+	cmd      Cmd
 }
 
 func NewModel() model {
-	tab := component.NewTab()
-	source := component.NewSouce("loading file...")
-	markdown := component.Markdown("Markdown Editor\nhifdasjf jsdklafjkl ajfklwjefjds")
-	cmd := component.NewCmd()
+	tab := NewTab()
+	source := NewSouce("loading file...")
+	markdown := Markdown("Markdown Editor\nhifdasjf jsdklafjkl ajfklwjefjds")
+	cmd := NewCmd()
 
 	m := model{
 		tab:      tab,
@@ -67,21 +75,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case keymap.Matches(msg, keymap.Quit):
 			cmds = append(cmds, func() tea.Msg {
-				return component.UpdateMsgMsg("Type  :q  and press <Enter> to exit TUImd")
+				return UpdateMsgMsg("Type  :q  and press <Enter> to exit TUImd")
 			})
-		// there should be a more elegant way to manage state
-		case keymap.Matches(msg, keymap.BeginInsertMode):
-			if m.mode == component.NormalMode {
-				m.mode = component.InsertMode
-				m.source.Mode = component.InsertMode
-				m.cmd.Mode = component.InsertMode
-			}
-		case keymap.Matches(msg, keymap.BeginNormalMode):
-			if m.mode == component.InsertMode {
-				m.mode = component.NormalMode
-				m.source.Mode = component.NormalMode
-				m.cmd.Mode = component.NormalMode
-			}
+			// there should be a more elegant way to manage state
+			// case keymap.Matches(msg, keymap.BeginInsertMode):
+			// 	if mode == NormalMode {
+			// 		mode = InsertMode
+			// 		cmds = append(cmds, func() tea.Msg {
+			// 			return InsertMode
+			// 		})
+			// 	}
+			// case keymap.Matches(msg, keymap.BeginNormalMode):
+			// 	if mode == InsertMode && m.cmd.Cmding == false {
+			// 		mode = NormalMode
+			// 		cmds = append(cmds, func() tea.Msg {
+			// 			return NormalMode
+			// 		})
+			// 	}
 		}
 
 	case tea.WindowSizeMsg:
