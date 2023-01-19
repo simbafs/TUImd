@@ -1,8 +1,9 @@
-package main
+package tab
 
 import (
+	Msg "tuimd/msg"
+
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/simbafs/TUImd/util"
 )
 
 type Tab struct {
@@ -15,25 +16,17 @@ func (m Tab) Update(msg tea.Msg) (Tab, tea.Cmd) {
 	// var cmds []tea.Cmd = make([]tea.Cmd, 4)
 
 	switch msg := msg.(type) {
-	case util.FileMsg:
-		m.Text = msg.Filename
+	case Msg.FilenameChange:
+		m.Text = string(msg)
 	}
 
 	return m, nil
 	// return m, tea.Batch(cmds...)
 }
 
-// func (m Tab) View() string {
-// 	if mode == InsertMode {
-// 		return "InsertMode"
-// 	} else {
-// 		return "NormalMode"
-// 	}
-// }
-
 func (m Tab) View() string { return m.Text }
 
-func NewTab() Tab {
+func New() Tab {
 	return Tab{
 		Text: "",
 	}

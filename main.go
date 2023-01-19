@@ -7,8 +7,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	keymap "github.com/simbafs/TUImd/keyMap"
-	"github.com/simbafs/TUImd/util"
+	"tuimd/component/cmd"
+	"tuimd/component/markdown"
+	"tuimd/component/source"
+	"tuimd/component/tab"
+	keymap "tuimd/keyMap"
+	Msg "tuimd/msg"
+	"tuimd/util"
 )
 
 const (
@@ -18,33 +23,23 @@ const (
 	cmdAddr
 )
 
-type Mode int
-
-const (
-	NormalMode Mode = iota
-	InsertMode
-)
-
-var mode = NormalMode
-
 // main model
 type model struct {
 	filename string
 	body     string
-	mode     Mode
 	width    int
 	height   int
-	tab      Tab
-	source   Source
-	markdown Markdown
-	cmd      Cmd
+	tab      tab.Tab
+	source   source.Source
+	markdown markdown.Markdown
+	cmd      cmd.Cmd
 }
 
 func NewModel() model {
-	tab := NewTab()
-	source := NewSouce("loading file...")
-	markdown := Markdown("Markdown Editor\nhifdasjf jsdklafjkl ajfklwjefjds")
-	cmd := NewCmd()
+	tab := tab.New()
+	source := source.New("loading file...")
+	markdown := markdown.New()
+	cmd := cmd.New()
 
 	m := model{
 		tab:      tab,
@@ -58,6 +53,7 @@ func NewModel() model {
 
 func (m model) Init() tea.Cmd {
 	return tea.Batch(
+		Msg.ChangeMode("normal"),
 		m.tab.Init(),
 		m.source.Init(),
 		m.markdown.Init(),
@@ -71,31 +67,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd = make([]tea.Cmd, 4)
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.height, m.width = msg.Height, msg.Width
 	case tea.KeyMsg:
 		switch {
 		case keymap.Matches(msg, keymap.Quit):
-			cmds = append(cmds, func() tea.Msg {
-				return UpdateMsgMsg("Type  :q  and press <Enter> to exit TUImd")
-			})
-			// there should be a more elegant way to manage state
-			// case keymap.Matches(msg, keymap.BeginInsertMode):
-			// 	if mode == NormalMode {
-			// 		mode = InsertMode
-			// 		cmds = append(cmds, func() tea.Msg {
-			// 			return InsertMode
-			// 		})
-			// 	}
-			// case keymap.Matches(msg, keymap.BeginNormalMode):
-			// 	if mode == InsertMode && m.cmd.Cmding == false {
-			// 		mode = NormalMode
-			// 		cmds = append(cmds, func() tea.Msg {
-			// 			return NormalMode
-			// 		})
-			// 	}
+			cmds = append(cmds, tea.Quit)
+			// m.cmd.DisplayMsg("Type  :q  and press <Enter> to exit TUImd")
+		case keymap.Matches(msg, keymap.BeginNormalMode):
+			cmds = append(cmds, Msg.ChangeMode("normal"))
 		}
-
-	case tea.WindowSizeMsg:
-		m.height, m.width = msg.Height, msg.Width
 	}
 
 	m.tab, cmd = m.tab.Update(msg)
@@ -113,6 +94,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	// TODO: switch to github.com/treilik/bubbleboxer
 
+	// TODO: the problem of height of source component
 	middle := util.SplitHorizontal(m.height-4, []int{m.width/2 - 1, m.width/2 - 1},
 		m.source.View(),
 		m.markdown.View(),

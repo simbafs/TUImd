@@ -4,23 +4,18 @@ import (
 	"io/ioutil"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	Msg "tuimd/msg"
 )
 
-type FileMsg struct {
-	Filename string
-	Content  string
-}
-
 func ReadFile(filename string) tea.Cmd {
-	return func() tea.Msg {
+	return tea.Batch(func() tea.Msg {
 		b, err := ioutil.ReadFile(filename)
 		if err != nil {
 			return nil
 		}
 
-		return FileMsg{
-			Filename: filename,
-			Content:  string(b),
-		}
-	}
+		return Msg.BodyChange(string(b))
+	}, Msg.ChangeFilename(filename))
+
 }
