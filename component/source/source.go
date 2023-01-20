@@ -25,14 +25,18 @@ func (m Source) Update(msg tea.Msg) (Source, tea.Cmd) {
 		m.Textarea.SetHeight(msg.Height - 4)
 		m.Textarea.SetWidth(msg.Width/2 - 1)
 		cmds = append(cmds, util.RenderMD(m.Textarea.Value(), m.Textarea.Width()))
-	case Msg.BodyChange:
+	case Msg.Body:
 		m.Textarea.SetValue(string(msg))
 		cmds = append(cmds, util.RenderMD(m.Textarea.Value(), m.Textarea.Width()))
-	case Msg.ModeChange:
+	case Msg.Mode:
 		if msg == "insert" {
 			m.Textarea.Focus()
 		} else if msg == "normal" {
 			m.Textarea.Blur()
+		}
+	case Msg.SaveFile:
+		if msg != "" {
+			cmds = append(cmds, util.SaveFile(string(msg), m.Textarea.Value()))
 		}
 	}
 

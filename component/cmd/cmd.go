@@ -9,12 +9,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type Event func(string)
-
 type Cmd struct {
 	textinput    textinput.Model
 	msg          string
-	mode         string
 	isCommanding bool
 }
 
@@ -26,8 +23,7 @@ func (m Cmd) Update(msg tea.Msg) (Cmd, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.textinput.Width = msg.Width
-	case Msg.ModeChange:
-		m.mode = string(msg)
+	case Msg.Mode:
 		m.textinput.Blur()
 		m.textinput.SetValue("")
 		m.msg = ""
@@ -40,6 +36,7 @@ func (m Cmd) Update(msg tea.Msg) (Cmd, tea.Cmd) {
 		switch {
 		case keymap.Matches(msg, keymap.CommandPrefix):
 			m.isCommanding = true
+			m.msg = ""
 			m.textinput.Focus()
 		case keymap.Matches(msg, keymap.EnterCommand):
 			m.isCommanding = false
@@ -48,7 +45,7 @@ func (m Cmd) Update(msg tea.Msg) (Cmd, tea.Cmd) {
 			m.textinput.SetValue("")
 		case keymap.Matches(msg, keymap.BeginInsertMode):
 			if !m.isCommanding {
-				cmds = append(cmds, Msg.ChangeMode("insert"))
+				cmds = append(cmds, Msg.NewCmd[Msg.Mode]("insert"))
 			}
 		}
 	}

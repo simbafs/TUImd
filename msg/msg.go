@@ -2,27 +2,18 @@ package msg
 
 import tea "github.com/charmbracelet/bubbletea"
 
-type ModeChange string
-type FilenameChange string
-type BodyChange string
+type Mode string
+type Filename string
+type Body string
 
 type ShowMsg string
 type Rendered string
 
-func ChangeMode(mode string) func() tea.Msg {
-	return func() tea.Msg {
-		return ModeChange(mode)
-	}
-}
+// see README.md
+type SaveFile string
 
-func ChangeFilename(filename string) func() tea.Msg {
+func NewCmd[V ~string](val string) func() tea.Msg {
 	return func() tea.Msg {
-		return FilenameChange(filename)
-	}
-}
-
-func ChangeBody(body string) func() tea.Msg {
-	return func() tea.Msg {
-		return BodyChange(body)
+		return V(val)
 	}
 }

@@ -29,14 +29,11 @@ func CmdExec(cmd string) tea.Cmd {
 	case "q", "quit":
 		return tea.Quit
 	case "w", "write":
-		return func() tea.Msg {
-			return Msg.ShowMsg("The write command has not yet been implemented")
+		if len(args) >= 2 {
+			return Msg.NewCmd[Msg.SaveFile](args[1])
+		} else {
+			return Msg.NewCmd[Msg.SaveFile]("")
 		}
-		// if len(args) >= 2 {
-		// 	filename = args[1]
-		// }
-		//
-		// return SaveFile()
 	}
 
 	return nil

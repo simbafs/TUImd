@@ -15,7 +15,6 @@ func ReadFile(filename string) tea.Cmd {
 			return nil
 		}
 
-		return Msg.BodyChange(string(b))
-	}, Msg.ChangeFilename(filename))
-
+		return Msg.Body(string(b))
+	}, Msg.NewCmd[Msg.Filename](filename))
 }

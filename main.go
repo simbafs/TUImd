@@ -53,7 +53,7 @@ func NewModel() model {
 
 func (m model) Init() tea.Cmd {
 	return tea.Batch(
-		Msg.ChangeMode("normal"),
+		Msg.NewCmd[Msg.Mode]("normal"),
 		m.tab.Init(),
 		m.source.Init(),
 		m.markdown.Init(),
@@ -77,7 +77,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return Msg.ShowMsg("Type  :q  and press <Enter> to exit TUImd")
 			})
 		case keymap.Matches(msg, keymap.BeginNormalMode):
-			cmds = append(cmds, Msg.ChangeMode("normal"))
+			cmds = append(cmds, Msg.NewCmd[Msg.Mode]("normal"))
 		}
 	}
 
