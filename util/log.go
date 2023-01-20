@@ -1,6 +1,14 @@
 package util
 
-import "os"
+import (
+	"os"
+)
 
-var file, _ = os.OpenFile("debug.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-var Log = file.WriteString
+var file *os.File
+
+func LogLn(log string) {
+	if file == nil {
+		file, _ = os.OpenFile("debug.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	}
+	file.WriteString(log + "\n")
+}
