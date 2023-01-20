@@ -1,15 +1,22 @@
 # test.md
 this is a testing markdown document
 
-## Food
+## List
 * apple
 * banana
 	* cookie
 
-## Attendance
+## Checkbox
 - [ ] Alice
 - [x] Bob
 - [ ] Charlie
+
+## Image and link
+![image text](./test.png)
+
+[simbafs](https://github.com/simbafs)
+
+## Code block
 
 ```go
 package main
@@ -22,3 +29,8 @@ func main() {
 }
 ```
 
+## Table
+| name  | description |
+| :---: | :---        |
+| Alice | a girl      |
+| Bob   | a boy       |

@@ -72,8 +72,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case keymap.Matches(msg, keymap.Quit):
-			cmds = append(cmds, tea.Quit)
-			// m.cmd.DisplayMsg("Type  :q  and press <Enter> to exit TUImd")
+			// cmds = append(cmds, tea.Quit)
+			cmds = append(cmds, func() tea.Msg {
+				return Msg.ShowMsg("Type  :q  and press <Enter> to exit TUImd")
+			})
 		case keymap.Matches(msg, keymap.BeginNormalMode):
 			cmds = append(cmds, Msg.ChangeMode("normal"))
 		}

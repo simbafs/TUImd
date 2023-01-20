@@ -1,26 +1,15 @@
 package util
 
 import (
-	"io/fs"
-	"io/ioutil"
-	"os/exec"
 	Msg "tuimd/msg"
 
+	MDrender "github.com/MichaelMure/go-term-markdown"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func RenderMD(md string) tea.Cmd {
+func RenderMD(md string, width int) tea.Cmd {
 	return func() tea.Msg {
-		err := ioutil.WriteFile("/tmp/tuimd", []byte(md), fs.ModePerm)
-		if err != nil {
-			return Msg.ShowMsg("fail to save to temp file")
-		}
-
-		cmd := exec.Command("glow", "/tmp/tuimd")
-		rendered, err := cmd.CombinedOutput()
-		if err != nil {
-			return Msg.ShowMsg("fail to render md")
-		}
+		rendered := MDrender.Render(md, width, 0)
 
 		return Msg.Rendered(string(rendered))
 	}
