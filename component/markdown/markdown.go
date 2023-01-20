@@ -24,6 +24,10 @@ func (m Markdown) Update(msg tea.Msg) (Markdown, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.viewport = viewport.New(msg.Width/2-1, msg.Height-4)
 		m.viewport.SetContent(m.rendered)
+		m.viewport.MouseWheelDelta = 1
+		m.viewport.MouseWheelEnabled = true
+		m.viewport.KeyMap.Up.SetEnabled(false)
+		m.viewport.KeyMap.Down.SetEnabled(false)
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
@@ -34,7 +38,14 @@ func (m Markdown) Update(msg tea.Msg) (Markdown, tea.Cmd) {
 func (m Markdown) View() string { return m.viewport.View() }
 
 func New() Markdown {
+	viewport := viewport.New(10, 10)
+	viewport.MouseWheelDelta = 1
+	viewport.MouseWheelEnabled = true
+	viewport.KeyMap.Up.SetEnabled(false)
+	viewport.KeyMap.Down.SetEnabled(false)
+
 	return Markdown{
-		viewport: viewport.New(10, 10),
+		viewport: viewport,
 	}
+
 }

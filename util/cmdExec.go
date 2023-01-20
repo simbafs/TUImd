@@ -2,6 +2,7 @@ package util
 
 import (
 	"strings"
+	Msg "tuimd/msg"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -28,7 +29,14 @@ func CmdExec(cmd string) tea.Cmd {
 	case "q", "quit":
 		return tea.Quit
 	case "w", "write":
-		// TODO write file
+		return func() tea.Msg {
+			return Msg.ShowMsg("The write command has not yet been implemented")
+		}
+		// if len(args) >= 2 {
+		// 	filename = args[1]
+		// }
+		//
+		// return SaveFile()
 	}
 
 	return nil

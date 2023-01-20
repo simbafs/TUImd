@@ -110,7 +110,10 @@ func (m model) View() string {
 }
 
 func main() {
-	if _, err := tea.NewProgram(NewModel(), tea.WithAltScreen()).Run(); err != nil {
+	if _, err := tea.NewProgram(NewModel(),
+		tea.WithAltScreen(),
+		tea.WithMouseAllMotion(),
+	).Run(); err != nil {
 		fmt.Printf("Oops, there's some error: %v\n", err)
 		os.Exit(1)
 	}

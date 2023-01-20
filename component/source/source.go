@@ -36,8 +36,11 @@ func (m Source) Update(msg tea.Msg) (Source, tea.Cmd) {
 		}
 	}
 
-	m.Textarea, cmd = m.Textarea.Update(msg)
-	cmds = append(cmds, cmd)
+	// disable mouse event for textarea
+	if _, ok := msg.(tea.MouseEvent); !ok {
+		m.Textarea, cmd = m.Textarea.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	if _, ok := msg.(tea.KeyMsg); ok && m.Textarea.Focused() {
 		cmds = append(cmds, util.RenderMD(m.Textarea.Value(), m.Textarea.Width()))
