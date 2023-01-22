@@ -97,15 +97,21 @@ func (m model) View() string {
 	// TODO: switch to github.com/treilik/bubbleboxer
 
 	// TODO: the problem of height of source component
-	middle := util.SplitHorizontal(m.height-4, []int{m.width/2 - 1, m.width/2 - 1},
-		m.source.View(),
-		m.markdown.View(),
+
+	tab := m.tab.View()
+	source := m.source.View()
+	markdown := m.markdown.View()
+	cmd := m.cmd.View()
+
+	middle := util.SplitHorizontal(m.height-(2+lipgloss.Height(tab)+lipgloss.Height(cmd)), []int{m.width/2 - 1, m.width/2 - 1},
+		source,
+		markdown,
 	)
 
 	return util.SplitVertical(m.width, []int{1, lipgloss.Height(middle), 1},
-		m.tab.View(),
+		tab,
 		middle,
-		m.cmd.View(),
+		cmd,
 	)
 }
 
